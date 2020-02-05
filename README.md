@@ -1,6 +1,6 @@
 # nCoV analysis reports
 
-[The Institute for Disease Modeling](http://idmod.org/)
+[IDM: the Institute for Disease Modeling](http://idmod.org/)
 
 ## Reports
 - **01 February 2020**: [2019-nCoV: preliminary estimates of the confirmed-case-fatality-ratio and infection-fatality-ratio, and initial pandemic risk assessment](analyses/first_adjusted_mortality_estimates_and_risk_assessment/2019-nCoV-preliminary_age_and_time_adjusted_mortality_rates_and_pandemic_risk_assessment.html)
