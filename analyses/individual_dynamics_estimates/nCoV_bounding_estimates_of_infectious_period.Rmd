@@ -1,0 +1,46 @@
+---
+title: 'nCoV: estimating the duration from symptom onset to death, and bounding the infectious duration distribution with hospitalization and death'
+author: "Mike Famulare (Institute for Disease Modeling)"
+date: "January 26, 2020"
+output:
+  html_document:
+    fig_caption: yes
+    fig_width: 4
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Summary
+
+The duration distribution from symptom onset to death is an important variable to define hospital resource needs and to anticipate future prognosis at the population level. From the partial line list curated by [kaiyuan@nih.gov](mailto:kaiyuan@nih.gov) and maintained in [this google sheet](https://docs.google.com/spreadsheets/d/1jS24DjSPVWa4iuxuD4OAXrE3QeI8c9BC1hSlqr-NMiU/edit#gid=1187587451), we used information from 39 subjects with known or estimated dates of symptom onset and death to infer the distribution of times from onset to death observed in clinically-detected cases.  We find that this interval appears to be log-normally distributed, with median duration 13.6 (95% CI 11.8, 15.4) days, and that 95% of deaths that will occur are expected to occur between 6.0 (4.7, 7.4) and 16.4 (13.0, 21.4) days after symptom onset. Note that this analysis only applies to clinically-detected cases and reported deaths, all of whom show significant disease activity.  
+
+While it is unknown at this time if viral shedding and thus likely transmissibility parallels clinical severity, or if asymptomatic cases follow similar shedding dynamics to symptomatic cases, we can try to estimate the infectious period by assuming it is similar to the symptomatic peri
+
+. Note that reports of shedding during the incubation period may be conflating shedding from asymptomatic infections with shedding prior to symptom onset. 
+
+Thus, this analysis does not currently inform models of underlying transmission dynamics without additional assumptions about the relationships between symptoms and viral shedding.  
+
+
+## Methods
+
+For subjects with known travel history from Wuhan to other parts of China, We conducted an interval-censored survival analysis for the distribution of times from putative exposure to symptom onset. Methods available at [github.com/InstituteforDiseaseModeling/nCoV-public](https://github.com/InstituteforDiseaseModeling/nCoV-public)
+
+## Results
+We compared exponential, Weibull, and lognormal models and found that the lognormal had the best fit by AIC, with Weibull insignificanlty lower and exponential strongly disfavored. The estimated lognormal model parameters are $\mu = 1.678 (1.453, 1.902)$ and $\sigma = 0.505 (0.336, 0.759)$. 
+
+![Estimated incubation duration distributions (Kaplan-Meier, red; lognormal, black (95% CI dashed)). Incubation times at the individual-level are highly variable.
+](incubation_from_linelist.png){width=480px}
+
+
+The median duration and 95\% probability ranges are shown in Figure 2.
+
+![Median and 95\% probability intervals for individual-level variation in symptom onset for clinical cases).
+](incubation_from_linelist_summary.png){width=480px}
+
+
+
+
+
