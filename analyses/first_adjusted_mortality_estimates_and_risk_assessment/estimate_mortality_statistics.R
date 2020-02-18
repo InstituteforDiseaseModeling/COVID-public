@@ -70,7 +70,47 @@ p4<- kmp2$table + scale_x_continuous(limits=c(0,42), breaks=seq(0,40,by=4)) +
 
 plot_grid(p3,p4,nrow = 2, rel_heights = c(0.75,0.22), align='v')
 
-ggsave('./analyses/first_adjusted_mortality_estimates/symptom_onset_to_death_from_linelist.png',width=6, height=5,units='in',dpi=600)
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/symptom_onset_to_death_from_linelist.png',width=6, height=5,units='in',dpi=600)
+
+
+# symptom onset to hospitalization
+
+t1 <- as.numeric(linelist$hosp_visit_date - linelist$symptom_onset)
+t1[is.na(t1)]<-as.numeric(as.Date('2020-01-26')-linelist$symptom_onset[is.na(t1)])
+t1<-pmax(t1,1)
+outcome <- linelist$death
+outcome[outcome==1]<-'death'
+outcome[linelist$recovered==1]<-'recovered'
+outcome[outcome=='0']<-'censored'
+
+t1[linelist$recovered==1] <- as.numeric(linelist$recovered_date[linelist$recovered==1] - linelist$symptom_onset[linelist$recovered==1])
+status<-as.numeric(outcome!='censored')
+st <- data.frame(t1=t1,status=status,outcome=outcome)
+
+st <- st
+# st <- st %>% filter(outcome!='0')
+
+st$outcome <- factor(st$outcome, levels=c('death','recovered','censored'))
+surv_object <- Surv(time = st$t1,
+                    event = st$status, 
+                    type='right')
+
+mod <- survfit(surv_object~1,data=st)
+plot(mod)
+
+onsetToHospDurationModel <- flexsurvreg(surv_object~1,data=st, dist='lognormal')
+
+kmp2 <- ggsurvplot(mod,risk.table = TRUE, xlim=c(0,42), conf.int = TRUE) + guides(color=FALSE) 
+
+p3<-kmp2$plot +  scale_x_continuous(limits=c(0,42), breaks=seq(0,40,by=4)) + 
+  xlab('') + ylab('P(T>t)')
+p4<- kmp2$table + scale_x_continuous(limits=c(0,42), breaks=seq(0,40,by=4)) + 
+  xlab('days from symptom onset to outcome') + ylab('')
+
+plot_grid(p3,p4,nrow = 2, rel_heights = c(0.75,0.22), align='v')
+
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/symptom_onset_to_hospitalization_from_linelist.png',width=6, height=5,units='in',dpi=600)
+
 
 
 ## hospitalization to death
@@ -108,7 +148,7 @@ p4<- kmp2$table + scale_x_continuous(limits=c(0,42), breaks=seq(0,40,by=4)) +
 
 plot_grid(p3,p4,nrow = 2, rel_heights = c(0.75,0.22), align='v')
 
-ggsave('./analyses/first_adjusted_mortality_estimates/hospitalization_to_death_from_linelist.png',width=6, height=5,units='in',dpi=600)
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/hospitalization_to_death_from_linelist.png',width=6, height=5,units='in',dpi=600)
 
 
 
@@ -141,7 +181,7 @@ p4<- kmp2$table + scale_x_continuous(limits=c(0,42), breaks=seq(0,42,by=4)) +
 
 plot_grid(p3,p4,nrow = 2, rel_heights = c(0.5,0.45), align='v')
 
-ggsave('./analyses/first_adjusted_mortality_estimates/symptom_onset_to_death_by_age_from_linelist.png',width=5, height=5,units='in',dpi=600)
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/symptom_onset_to_death_by_age_from_linelist.png',width=5, height=5,units='in',dpi=600)
 
 
 
@@ -172,7 +212,7 @@ p3<-ggplot(plotDat) + geom_bar(aes(x=symptom_onset,y=frequency, group=key, fill=
 plot_grid(p3,p1,p2,nrow=3, align='v')
 
 
-ggsave('./analyses/first_adjusted_mortality_estimates/mortality_recover_timeseries.png',width=5, height=5,units='in',dpi=600)
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/mortality_recover_timeseries.png',width=5, height=5,units='in',dpi=600)
 
 plotDat <- linelist %>% group_by(symptom_onset) %>% summarize(n=n(),deaths=sum(death==1), recovered=sum(recovered==1)) %>%
   summarize(fracDead = mean(deaths/n,na.rm=TRUE), fracRecovered=mean(recovered/n,na.rm=TRUE)) %>%
@@ -211,7 +251,7 @@ p3<-p3 + geom_line(data=age_mortality_fit,aes(x=age_bin,y=fraction_dead)) + ylab
 plot_grid(p3,p1,nrow=2, align='v')
 
 
-ggsave('./analyses/first_adjusted_mortality_estimates/mortality_recover_age.png',width=5, height=5*2/3,units='in',dpi=600)
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/mortality_recover_age.png',width=5, height=5*2/3,units='in',dpi=600)
 
 
 ## total expected deaths
@@ -230,7 +270,7 @@ expected_outcomes<- expected_outcomes %>% rbind(data.frame(age_bin=' ',n='',expe
                                 fraction_dead=round(sum(expected_dead,na.rm=TRUE)/sum(n,na.rm=TRUE),2)))
 
 
-png('./analyses/first_adjusted_mortality_estimates/estimated_mortality_among_early_cases.png',width=6.5, height=3.7,units='in',res=300)
+png('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/estimated_mortality_among_early_cases.png',width=6.5, height=3.7,units='in',res=300)
 grid.arrange(tableGrob(expected_outcomes, rows=NULL))
 dev.off()
 
@@ -301,7 +341,41 @@ p4<-ggplot(plotDat ) +
   geom_line(aes(x=hospitalization_or_confirmation,y=grand_mean_age),size=1)
 
 plot_grid(p1,p2,p3,p4,nrow=4, rel_heights = c(1,1,1.6,1))
-ggsave('./analyses/first_adjusted_mortality_estimates/ages_expanded_linelist.png',width=5, height=5*4/3,units='in',dpi=600)
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/ages_expanded_linelist.png',width=5, height=5*4/3,units='in',dpi=600)
+
+
+## symptom onset to hospitalization
+
+t1 <- as.numeric(linelist$date_confirmation - linelist$date_onset_symptoms)
+t1[is.na(t1)]<-as.numeric(as.Date('2020-01-26')-linelist$symptom_onset[is.na(t1)])
+t1<-pmax(t1,1)
+
+st <- data.frame(t1=t1)
+
+st <- st %>% drop_na()
+st$status <- 1
+# st <- st %>% filter(outcome!='0')
+
+surv_object <- Surv(time = st$t1,
+                    event = st$status, 
+                    type='right')
+
+mod <- survfit(surv_object~1,data=st)
+plot(mod)
+
+onsetToHospDurationModel <- flexsurvreg(surv_object~1,data=st, dist='lognormal')
+plot(onsetToHospDurationModel)
+
+kmp2 <- ggsurvplot(mod,risk.table = TRUE, xlim=c(0,42), conf.int = TRUE) + guides(color=FALSE) 
+
+p3<-kmp2$plot +  scale_x_continuous(limits=c(0,42), breaks=seq(0,40,by=4)) + 
+  xlab('') + ylab('P(T>t)')
+p4<- kmp2$table + scale_x_continuous(limits=c(0,42), breaks=seq(0,40,by=4)) + 
+  xlab('days from symptom onset to outcome') + ylab('')
+
+plot_grid(p3,p4,nrow = 2, rel_heights = c(0.75,0.22), align='v')
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/symptom_onset_to_confirmation_from_linelist.png',width=6, height=5,units='in',dpi=600)
+onsetToHospDurationModel
 
 
 ## impute ages
@@ -397,7 +471,7 @@ ggplot(plotDat) +geom_step(aes(x=date,y=log10(total), group=outcome,color=outcom
   # geom_step(data=ribDat,aes(x=date,y=log10(imputed_death_date_upper)),linetype='dotted') +
   scale_color_brewer(type='qual', palette=3, direction=-1)
 
-ggsave('./analyses/first_adjusted_mortality_estimates/cases_vs_deaths_fancy_model.png',width=6.5, height=3.5,units='in',dpi=600)
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/cases_vs_deaths_fancy_model.png',width=6.5, height=3.5,units='in',dpi=600)
 
 
 
@@ -407,15 +481,27 @@ tmp<-cumulativeData %>% filter(outcome=='cumulative_confirmed_cases') %>% mutate
 
 tmp<- cumulativeData %>% mutate(date=as.Date(date)) %>% rbind(tmp)
 ggplot(tmp) + geom_step(aes(x=date, y=log10(total),color=outcome,group=outcome)) + theme_bw()
-ggsave('./analyses/first_adjusted_mortality_estimates/cases_vs_deaths_simple_model.png',width=6.5, height=3.5,units='in',dpi=600)
+ggsave('./analyses/first_adjusted_mortality_estimates_and_risk_assessment/cases_vs_deaths_simple_model.png',width=6.5, height=3.5,units='in',dpi=600)
 
 ## model estimates of infections https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)30260-9/fulltext
 casesJan25<-761 #https://www.cnn.com/asia/live-news/coronavirus-outbreak-hnk-intl-01-25-20/index.html
-infectionsLu <- c(75815, 37304,130330 )
 
-casesJan25/infectionsLu
+# discount infections by time it takes to observe! 
 
-casesJan25/infectionsLu*c(.33,.37,.29) # outer interval
+median_incubation <- c(5.4, 4.2, 6.7)
+median_onset_to_confirmation <- exp(c(1.4482,1.3479,1.5484))
+doubling<-c(6.4, 5.8, 7.1)
+
+infectionsLu <- c(75815, 37304,130330 ) * 2^(-(median_incubation[c(1,3,2)]+
+                                                 median_onset_to_confirmation[c(1,3,2)])/doubling)
+
+infectionsLu
+
+casesJan25/infectionsLu*100
+
+casesJan25/infectionsLu*c(.33,.37,.29)*100 # outer interval
+
+infectionsLu/casesJan25
 
 
 ## us flu mortality https://www.cdc.gov/flu/about/burden/index.html
