@@ -509,3 +509,24 @@ invIFR <- sum(c(10,4.3,16,13,14,11,14,21,16.5)*1e6)/sum(c(37,12,43,38,51,23,38,6
 
 invIFR <- mean(c(10,4.3,16,13,14,11,14,21,16.5)*1e6/(c(37,12,43,38,51,23,38,61,34)*1e3))
 
+
+
+## international IFR bound
+
+calthaus_CFR <- c(2.1, 0.55, 5.4)
+sensitivity_weight <- c(2.8,1.5,4.4)
+
+upper_IFR <- calthaus_CFR / sensitivity_weight[c(1,3,2)]
+upper_IFR
+
+
+
+
+expected_infections_to_singapore <- 0.042* c(834, 478, 1349) #https://www.medrxiv.org/content/10.1101/2020.02.04.20020479v1.full.pdf
+imported_cases_as_of_Feb3 <- 18
+
+ascertainment_rate <- imported_cases_as_of_Feb3 / expected_infections_to_singapore
+ascertainment_rate
+
+lower_IFR <- upper_IFR* ascertainment_rate[c(1,3,2)]
+lower_IFR
