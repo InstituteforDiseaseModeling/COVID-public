@@ -130,3 +130,6 @@ Figure 11 shows the onset to death duration distribution by age. The duration fr
 
 ![**Figure 11.** Kaplan-Meier estimates of distribution of durations from symptom onset to death by age.  The duration from onset to death was longer for younger patients.](symptom_onset_to_death_by_age_from_linelist.png){width=5in}
 
+# Acknowledgments
+
+I thank Hao Hu (Bill \& Melinda Gates Foundation), Edward Wenger (IDM), and Neil Ferguson (Imperial College London) for substatntive feedback on this report.
