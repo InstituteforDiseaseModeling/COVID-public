@@ -1,6 +1,6 @@
-# nCoV analysis reports
+# COVID-19 analysis reports
 
-View these reports online: https://institutefordiseasemodeling.github.io/nCoV-public/
+View these reports online: https://institutefordiseasemodeling.github.io/COVID-public/
 
 Provided by [IDM: the Institute for Disease Modeling](http://idmod.org/)
 
