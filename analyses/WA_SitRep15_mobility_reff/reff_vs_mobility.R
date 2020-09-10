@@ -329,7 +329,7 @@ write_csv(plot_df2, 'mobility_reff_inla_model.csv')
 
 
 # percent at home
-p1<-plot_events + geom_line(data=sg %>% filter(county %in% unique(plot_df2$county)),aes(x=date,y=percent_home, group=county, color=county)) + 
+p1<-ggplot() + geom_line(data=sg %>% filter(county %in% unique(plot_df2$county)),aes(x=date,y=percent_home, group=county, color=county)) + 
   geom_line(data=sg %>% filter(county %in% unique(plot_df2$county)),aes(x=date,y=percent_home_smooth, group=county, color=county),size=1.5) + 
   xlab('') + ylab('percent at home') + 
   scale_x_date(date_labels = "%B", breaks='1 month') 
